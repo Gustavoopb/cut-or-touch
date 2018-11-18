@@ -36,7 +36,7 @@ function scene:create( event )
 	display.setDefault("background", 230/255, 230/255, 230/255)
 	
 	-- create/position logo/title image on upper-half of the screen
-	local titleLogo = display.newImageRect( "cutortouch.png", 211, 128 )
+	local titleLogo = display.newImageRect( "cutortouch.png", 333, 250 )
 	titleLogo.x = display.contentCenterX
 	titleLogo.y = 100
 	
