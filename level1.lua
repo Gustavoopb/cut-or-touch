@@ -23,6 +23,7 @@ local track = audio.loadStream("sounds/track.mp3")
 local cut = audio.loadSound("sounds/cut.wav")
 local gameMusicChannel = audio.play( track, { loops = -1, channel=1 } )
 audio.setVolume( 0.4, { channel=1 } )
+local endGame = false
 
 local scoreOptions = 
 {
@@ -53,28 +54,13 @@ local lifeBoard = display.newText(lifeOptions)
 lifeBoard:setFillColor( 0.2, 0.2, 0.2 )
 
 local function loser()
-	local function onComplete( event )
-		function restartStats()
-			score = 0
-			life = 10
-			endGame = false
-			scoreBoard.text = "Score: " .. score
-			lifeBoard.text = "Life: " .. life .. "/10"
-		end
-		if ( event.action == "clicked" ) then
-			local i = event.index
-			if ( i == 1 ) then
-				restartStats()
-				composer.removeScene( "level1" )
-				composer.gotoScene( "level1" )
-			elseif ( i == 2 ) then
-				restartStats()
-				composer.gotoScene( "menu", "fade", 500 )
-				composer.removeScene( "level1" )
-			end
-		end
-	end
-	native.showAlert( "Ohh no.", "You lose, dude. Choose what you wanna do.", { "Play Again", "Back to menu" }, onComplete )
+	composer.removeScene( "level1" )
+	local options = {
+		effect = "fade",
+		time = 800,
+		params = { level="Level 1", score= score .. " points" }
+	}
+	composer.gotoScene( "game-over", options)
 end
 
 local function randomColor()
@@ -175,11 +161,7 @@ local function newBall()
 	} )
 
 	circle:addEventListener( "tap", userTap )
-	-- timer.performWithDelay(getGameLoop(), newBall)
 end
-
--- newBall()
-
 
 local function newRect()
 	local start = getQuadrant()
@@ -196,25 +178,23 @@ local function newRect()
 		onComplete=destroyBall(rect)
 	} )
 	rect:addEventListener( "touch", userTap )
-	--  timer.performWithDelay(getGameLoop()+50, newRect)
 end
 
 
 local function start()
-	if endGame then
-		return
-	end
-	local toThrow = {1,1,1,1,2}
-	local elements = math.random(1,5)
-	for i = 1, toThrow[elements] do
-		local shape = math.random(1,2)
-		if shape == 1 then
-			newBall()
-		elseif shape ==2 then
-			newRect()
+	if endGame == false then
+		local toThrow = {1,1,1,1,2}
+		local elements = math.random(1,5)
+		for i = 1, toThrow[elements] do
+			local shape = math.random(1,2)
+			if shape == 1 then
+				newBall()
+			elseif shape ==2 then
+				newRect()
+			end
 		end
+		timer.performWithDelay(getGameLoop(), start)
 	end
-	timer.performWithDelay(getGameLoop(), start)
 end
 
 
@@ -228,7 +208,6 @@ function scene:create( event )
 	local sceneGroup = self.view
 	sceneGroup:insert(lifeBoard)
 	sceneGroup:insert(scoreBoard)
-	-- sceneGroup:insert(gameMusicChannel)
 end
 
 

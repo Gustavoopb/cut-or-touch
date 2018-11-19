@@ -13,13 +13,23 @@ local widget = require "widget"
 --------------------------------------------
 
 -- forward declarations and other locals
-local playBtn
+local playAgainBtn
+local menuBtn
 
--- 'onRelease' event listener for playBtn
-local function onPlayBtnRelease()
+-- 'onRelease' event listener for playAgainBtn
+local function onPlayAgainBtnRelease()
 	
 	-- go to level1.lua scene
 	composer.gotoScene( "level1", "fade", 500 )
+	
+	return true	-- indicates successful touch
+end
+
+-- 'onRelease' event listener for menuBtn
+local function onMenuBtnRelease()
+	
+	-- go to level1.lua scene
+	composer.gotoScene( "menu", "fade", 500 )
 	
 	return true	-- indicates successful touch
 end
@@ -36,26 +46,46 @@ function scene:create( event )
 	display.setDefault("background", 230/255, 230/255, 230/255)
 	
 	-- create/position logo/title image on upper-half of the screen
-	local titleLogo = display.newImageRect( "cutortouch.png", 333, 250 )
-	titleLogo.x = display.contentCenterX
-	titleLogo.y = 100
-	
+	local scoreOptions = {
+		text = "You have scored " .. event.params.score .. ".\nCongrats!",
+		x = display.contentCenterX,
+		y = display.contentCenterY - 85,
+		width = display.contentWidth - display.contentWidth/3,
+		font = native.systemFont,   
+		fontSize = 28,
+		align = "center"  -- Alignment parameter
+	}
+	local scoreBoard = display.newText(scoreOptions)
+	scoreBoard:setFillColor( 0.2, 0.2, 0.2 )
 	-- create a widget button (which will loads level1.lua on release)
-	playBtn = widget.newButton{
-		label="Play Now",
+	playAgainBtn = widget.newButton{
+		label="Play Again",
 		labelColor = { default={0}, over={128} },
 		shape = "roundedRect",
 		cornerRadius = 8,
         fillColor = { default={200/255, 200/255, 200/255}, over={100/255, 100/255, 100/255} },
 		width=154, height=40,
-		onRelease = onPlayBtnRelease	-- event listener function
+		onRelease = onPlayAgainBtnRelease	-- event listener function
 	}
-	playBtn.x = display.contentCenterX
-	playBtn.y = display.contentHeight - 125
+	playAgainBtn.x = display.contentCenterX
+	playAgainBtn.y = display.contentHeight - 145
+	
+	menuBtn = widget.newButton{
+		label="Menu",
+		labelColor = { default={0}, over={128} },
+		shape = "roundedRect",
+		cornerRadius = 8,
+        fillColor = { default={200/255, 200/255, 200/255}, over={100/255, 100/255, 100/255} },
+		width=154, height=40,
+		onRelease = onMenuBtnRelease	-- event listener function
+	}
+	menuBtn.x = display.contentCenterX
+	menuBtn.y = display.contentHeight - 85
 	
 	-- all display objects must be inserted into group
-	sceneGroup:insert( titleLogo )
-	sceneGroup:insert( playBtn )
+	sceneGroup:insert( scoreBoard )
+	sceneGroup:insert( playAgainBtn )
+	sceneGroup:insert( menuBtn )
 end
 
 function scene:show( event )
@@ -94,9 +124,13 @@ function scene:destroy( event )
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	
-	if playBtn then
-		playBtn:removeSelf()	-- widgets must be manually removed
-		playBtn = nil
+	if playAgainBtn then
+		playAgainBtn:removeSelf()	-- widgets must be manually removed
+		playAgainBtn = nil
+	end
+	if menuBtn then
+		menuBtn:removeSelf()	-- widgets must be manually removed
+		menuBtn = nil
 	end
 end
 
